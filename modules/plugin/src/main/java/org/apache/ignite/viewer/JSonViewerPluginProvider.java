@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.UUID;
 import org.apache.ignite.IgniteCheckedException;
 import org.apache.ignite.cluster.ClusterNode;
-import org.apache.ignite.internal.util.typedef.T2;
 import org.apache.ignite.plugin.CachePluginContext;
 import org.apache.ignite.plugin.CachePluginProvider;
 import org.apache.ignite.plugin.ExtensionRegistry;
@@ -93,12 +92,12 @@ public class JSonViewerPluginProvider implements PluginProvider<JSonViewerConfig
 
     /** {@inheritDoc} */
     @Override public @Nullable Serializable provideDiscoveryData(UUID nodeId) {
-        return instance.uri();
+        return instance.port();
     }
 
     /** {@inheritDoc} */
     @Override public void receiveDiscoveryData(UUID nodeId, Serializable data) {
-        System.out.println(nodeId + " = " + data);
+        instance.addPort(nodeId, ((Integer)data));
     }
 
     /** {@inheritDoc} */

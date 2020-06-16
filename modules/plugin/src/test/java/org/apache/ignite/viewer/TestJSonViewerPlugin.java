@@ -52,9 +52,7 @@ public class TestJSonViewerPlugin {
                 int cnt = ThreadLocalRandom.current().nextInt(5);
 
                 for (int i=0; i<cnt; i++) {
-                    System.out.println("i = " + i);
                     g1.compute().withName("test-task-" + cnt).broadcastAsync(() -> {
-                        System.out.println("TestJSonViewerPlugin.doCompute");
                         try {
                             Thread.sleep(2_000);
                         }

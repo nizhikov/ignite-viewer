@@ -17,13 +17,11 @@
 
 package org.apache.ignite.viewer;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.internal.IgniteEx;
-import org.apache.ignite.internal.util.typedef.T2;
 import org.apache.ignite.plugin.IgnitePlugin;
 import org.apache.ignite.plugin.PluginConfiguration;
 import org.apache.ignite.plugin.PluginContext;
@@ -34,17 +32,26 @@ import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 public class JSonViewerPlugin implements IgnitePlugin {
     private Server srv;
 
-    private List<T2<UUID, String>> nodes = new ArrayList<>();
+    private JSonViewerConfiguration cfg;
+
+    private ConcurrentMap<UUID, Integer> nodes = new ConcurrentHashMap<>();
+
+    private PluginContext ctx;
 
     public JSonViewerPlugin() {
     }
 
     public void init(PluginContext ctx) {
+        this.ctx = ctx;
+
         IgniteEx grid = (IgniteEx)ctx.grid();
 
-        JSonViewerConfiguration cfg = configuration(ctx);
+        cfg = configuration(ctx);
 
         srv = new Server(cfg.getPort());
+
+        ContextHandler nodesCtx = new ContextHandler("/nodes");
+        nodesCtx.setHandler(new NodesHandler(nodes, grid));
 
         ContextHandler viewCtx = new ContextHandler("/views");
         viewCtx.setHandler(new ViewsHandler(grid.context().systemView()));
@@ -52,10 +59,12 @@ public class JSonViewerPlugin implements IgnitePlugin {
         ContextHandler metricCtx = new ContextHandler("/metrics");
         metricCtx.setHandler(new MetricsHandler(grid.context().metric(), cfg.isPrintDescription()));
 
-        srv.setHandler(new ContextHandlerCollection(viewCtx, metricCtx));
+        srv.setHandler(new ContextHandlerCollection(nodesCtx, viewCtx, metricCtx));
     }
 
     public void start() {
+        nodes.put(ctx.localNode().id(), cfg.getPort());
+
         try {
             srv.start();
         }
@@ -88,7 +97,11 @@ public class JSonViewerPlugin implements IgnitePlugin {
         return cfg == null ? new JSonViewerConfiguration() : cfg;
     }
 
-    public URI uri() {
-        return srv == null ? null : srv.getURI();
+    public int port() {
+        return cfg == null ? -1 : cfg.getPort();
+    }
+
+    public void addPort(UUID node, int port) {
+        nodes.put(node, port);
     }
 }
