@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -86,7 +87,20 @@ public class ViewsHandler extends JSonHandler {
 
             walker.visitAll(t, new SystemViewRowAttributeWalker.AttributeWithValueVisitor() {
                 @Override public <K> void accept(int idx, String name, Class<K> clazz, K val) {
-                    runner.accept(() -> jgen.writeObjectField(name, val));
+                    runner.accept(() -> {
+                        if (val instanceof Collection) {
+                            Collection<?> coll = (Collection<?>)val;
+
+                            jgen.writeArrayFieldStart(name);
+
+                            for (Object item : coll) {
+                                jgen.writeString(Objects.toString(item));
+                            }
+                            jgen.writeEndArray();
+                        }
+                        else
+                            jgen.writeObjectField(name, val);
+                    });
                 }
 
                 @Override public void acceptBoolean(int idx, String name, boolean val) {

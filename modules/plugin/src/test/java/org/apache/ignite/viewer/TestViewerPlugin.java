@@ -28,6 +28,6 @@ public class TestViewerPlugin {
             .setPluginConfigurations(new IgniteViewerConfiguration(8080, true))
             .setPluginProviders(new IgniteViewerPluginProvider()));
 
-        Thread.sleep(60_000);
+        Thread.sleep(6000_000);
     }
 }

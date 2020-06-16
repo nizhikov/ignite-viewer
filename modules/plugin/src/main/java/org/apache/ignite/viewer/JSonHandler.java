@@ -36,6 +36,8 @@ public abstract class JSonHandler extends AbstractHandler {
         HttpServletResponse response) throws IOException {
         baseRequest.setHandled(true);
 
+        response.addHeader("Access-Control-Allow-Origin", "*");
+
         Object d = "/".equals(target) ? root() : data(target);
 
         if (d == null) {
