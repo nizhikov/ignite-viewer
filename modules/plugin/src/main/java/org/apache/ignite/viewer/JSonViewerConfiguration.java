@@ -19,17 +19,17 @@ package org.apache.ignite.viewer;
 
 import org.apache.ignite.plugin.PluginConfiguration;
 
-public class IgniteViewerConfiguration implements PluginConfiguration {
+public class JSonViewerConfiguration implements PluginConfiguration {
     private int port = 8080;
 
     private boolean prettyPrint;
 
     private boolean printDescription;
 
-    public IgniteViewerConfiguration() {
+    public JSonViewerConfiguration() {
     }
 
-    public IgniteViewerConfiguration(int port, boolean prettyPrint) {
+    public JSonViewerConfiguration(int port, boolean prettyPrint) {
         this.port = port;
         this.prettyPrint = prettyPrint;
     }

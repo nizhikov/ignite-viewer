@@ -17,11 +17,16 @@
 
 package org.apache.ignite.viewer;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.ignite.lang.IgniteUuid;
+import org.apache.ignite.spi.metric.HistogramMetric;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
@@ -73,5 +78,15 @@ public abstract class JSonHandler extends AbstractHandler {
         public String getName() { return name; }
 
         public String getDescription() { return description; }
+    }
+
+    public static class IgniteUuidSerializer  extends StdSerializer<IgniteUuid> {
+        protected IgniteUuidSerializer() {
+            super(IgniteUuid.class);
+        }
+
+        @Override public void serialize(IgniteUuid m, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+            jgen.writeString(m.toString());
+        }
     }
 }

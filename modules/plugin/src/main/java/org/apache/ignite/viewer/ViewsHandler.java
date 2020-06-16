@@ -25,13 +25,13 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.internal.managers.systemview.GridSystemViewManager;
+import org.apache.ignite.lang.IgniteUuid;
 import org.apache.ignite.spi.systemview.view.SystemView;
 import org.apache.ignite.spi.systemview.view.SystemViewRowAttributeWalker;
 
@@ -61,6 +61,8 @@ public class ViewsHandler extends JSonHandler {
         ObjectMapper mapper = new ObjectMapper();
 
         SimpleModule module = new SimpleModule();
+
+        module.addSerializer(IgniteUuid.class, new IgniteUuidSerializer());
 
         for (SystemView view : mgr) {
             module.addSerializer(view.rowClass(),

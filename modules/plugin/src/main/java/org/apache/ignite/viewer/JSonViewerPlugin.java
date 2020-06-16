@@ -17,8 +17,13 @@
 
 package org.apache.ignite.viewer;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.internal.IgniteEx;
+import org.apache.ignite.internal.util.typedef.T2;
 import org.apache.ignite.plugin.IgnitePlugin;
 import org.apache.ignite.plugin.PluginConfiguration;
 import org.apache.ignite.plugin.PluginContext;
@@ -26,22 +31,26 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 
-public class ViewerPlugin implements IgnitePlugin {
+public class JSonViewerPlugin implements IgnitePlugin {
     private Server srv;
 
-    public ViewerPlugin() {
+    private List<T2<UUID, String>> nodes = new ArrayList<>();
+
+    public JSonViewerPlugin() {
     }
 
     public void init(PluginContext ctx) {
-        IgniteViewerConfiguration cfg = configuration(ctx);
+        IgniteEx grid = (IgniteEx)ctx.grid();
+
+        JSonViewerConfiguration cfg = configuration(ctx);
 
         srv = new Server(cfg.getPort());
 
         ContextHandler viewCtx = new ContextHandler("/views");
-        viewCtx.setHandler(new ViewsHandler(((IgniteEx)ctx.grid()).context().systemView()));
+        viewCtx.setHandler(new ViewsHandler(grid.context().systemView()));
 
         ContextHandler metricCtx = new ContextHandler("/metrics");
-        metricCtx.setHandler(new MetricsHandler(((IgniteEx)ctx.grid()).context().metric(), cfg.isPrintDescription()));
+        metricCtx.setHandler(new MetricsHandler(grid.context().metric(), cfg.isPrintDescription()));
 
         srv.setHandler(new ContextHandlerCollection(viewCtx, metricCtx));
     }
@@ -64,18 +73,22 @@ public class ViewerPlugin implements IgnitePlugin {
         }
     }
 
-    private  IgniteViewerConfiguration configuration(PluginContext ctx) {
+    private JSonViewerConfiguration configuration(PluginContext ctx) {
         PluginConfiguration[] cfgs = ctx.igniteConfiguration().getPluginConfigurations();
 
-        IgniteViewerConfiguration cfg = null;
+        JSonViewerConfiguration cfg = null;
 
         if (cfgs != null) {
             for (PluginConfiguration _cfg : cfgs) {
-                if (_cfg instanceof IgniteViewerConfiguration)
-                    cfg = (IgniteViewerConfiguration)_cfg;
+                if (_cfg instanceof JSonViewerConfiguration)
+                    cfg = (JSonViewerConfiguration)_cfg;
             }
         }
 
-        return cfg == null ? new IgniteViewerConfiguration() : cfg;
+        return cfg == null ? new JSonViewerConfiguration() : cfg;
+    }
+
+    public URI uri() {
+        return srv == null ? null : srv.getURI();
     }
 }

@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.apache.ignite.internal.processors.metric.GridMetricManager;
+import org.apache.ignite.lang.IgniteUuid;
 import org.apache.ignite.spi.metric.HistogramMetric;
 import org.apache.ignite.spi.metric.Metric;
 import org.apache.ignite.spi.metric.ReadOnlyMetricRegistry;
@@ -67,6 +68,7 @@ public class MetricsHandler extends JSonHandler {
 
         SimpleModule module = new SimpleModule();
 
+        module.addSerializer(IgniteUuid.class, new IgniteUuidSerializer());
         module.addSerializer(HistogramMetric.class, new StdSerializer<HistogramMetric>(HistogramMetric.class) {
             @Override public void serialize(HistogramMetric m, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 jgen.writeStartObject();

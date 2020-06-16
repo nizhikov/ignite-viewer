@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.UUID;
 import org.apache.ignite.IgniteCheckedException;
 import org.apache.ignite.cluster.ClusterNode;
+import org.apache.ignite.internal.util.typedef.T2;
 import org.apache.ignite.plugin.CachePluginContext;
 import org.apache.ignite.plugin.CachePluginProvider;
 import org.apache.ignite.plugin.ExtensionRegistry;
@@ -30,10 +31,10 @@ import org.apache.ignite.plugin.PluginProvider;
 import org.apache.ignite.plugin.PluginValidationException;
 import org.jetbrains.annotations.Nullable;
 
-public class IgniteViewerPluginProvider implements PluginProvider<IgniteViewerConfiguration> {
+public class JSonViewerPluginProvider implements PluginProvider<JSonViewerConfiguration> {
     private PluginContext ctx;
 
-    private ViewerPlugin instance;
+    private JSonViewerPlugin instance;
 
     /** {@inheritDoc} */
     @Override public String name() {
@@ -57,7 +58,7 @@ public class IgniteViewerPluginProvider implements PluginProvider<IgniteViewerCo
 
     /** {@inheritDoc} */
     @Override public IgnitePlugin plugin() {
-        return (instance = new ViewerPlugin());
+        return (instance = new JSonViewerPlugin());
     }
 
     /** {@inheritDoc} */
@@ -92,12 +93,12 @@ public class IgniteViewerPluginProvider implements PluginProvider<IgniteViewerCo
 
     /** {@inheritDoc} */
     @Override public @Nullable Serializable provideDiscoveryData(UUID nodeId) {
-        return null;
+        return instance.uri();
     }
 
     /** {@inheritDoc} */
     @Override public void receiveDiscoveryData(UUID nodeId, Serializable data) {
-        // No-op.
+        System.out.println(nodeId + " = " + data);
     }
 
     /** {@inheritDoc} */
